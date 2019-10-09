@@ -30,7 +30,7 @@ Please list the names of the facilities that do. */
 
 SELECT `Facilities`.`name` AS Facility
 FROM `Facilities`
-WHERE (`Facilities`.`membercost` >0)
+WHERE (`Facilities`.`membercost` > 0)
 ORDER BY `Facilities`.`membercost` DESC
 
 
@@ -55,7 +55,7 @@ facilities in question. */
 SELECT `Facilities`.`facid` , `Facilities`.`name` , `Facilities`.`membercost` , `Facilities`.`monthlymaintenance`
 FROM `Facilities`
 WHERE (`Facilities`.`membercost` > 0
-     AND `Facilities`.`membercost` < ( `Facilities`.`monthlymaintenance` * 0.2 )
+   AND `Facilities`.`membercost` < ( `Facilities`.`monthlymaintenance` * 0.2 )
       )
 
 
@@ -80,6 +80,12 @@ more than $100? Return the name and monthly maintenance of the facilities
 in question. */
 
 
+SELECT `Facilities`.`name` , `Facilities`.`monthlymaintenance` ,
+CASE WHEN `Facilities`.`monthlymaintenance` > 100
+THEN 'expensive'
+ELSE 'cheap'
+END AS opinion
+FROM `Facilities`
 
 
 
@@ -88,10 +94,33 @@ in question. */
 who signed up. Do not use the LIMIT clause for your solution. */
 
 
+SELECT `Members`.`joindate` AS join_date, `Members`.`firstname` AS
+FIRST , `Members`.`surname` AS last
+FROM `Members`
+WHERE `Members`.`memid` = (
+     SELECT MAX( `Members`.`memid` )
+     FROM `Members` )
+
+
+
+
 /* Q7: How can you produce a list of all members who have used a tennis court?
 Include in your output the name of the court, and the name of the member
 formatted as a single column. Ensure no duplicate data, and order by
 the member name. */
+
+
+SELECT CASE WHEN `Bookings`.`facid`= 1 THEN 'Tennis Court 2'
+	    WHEN `Bookings`.`facid` = 0 THEN 'Tennis Court 1'
+	    ELSE NULL END AS Facility,
+	CONCAT(`Members`.`firstname`, ' ', `Members`.`surname`) AS Guest_name
+FROM `Bookings`, `Members`
+WHERE `Bookings`.`facid`
+IN ( 0, 1 )
+AND `Bookings`.`memid` = `Members`.`memid`
+GROUP BY 2
+
+
 
 
 /* Q8: How can you produce a list of bookings on the day of 2012-09-14 which
@@ -101,10 +130,32 @@ the guest user's ID is always 0. Include in your output the name of the
 facility, the name of the member formatted as a single column, and the cost.
 Order by descending cost, and do not use any subqueries. */
 
+SELECT `Bookings`.`starttime` AS Start_time,
+		CASE WHEN `Bookings`.`facid` = `Facilities`.`facid` THEN `Facilities`.`name`
+				ELSE NULL END AS Facility_name,
+        CASE WHEN `Bookings`.`memid` = `Members`.`memid` THEN `Members`.`firstname`
+				ELSE NULL END AS Guest_name
+FROM `Bookings`, `Facilities`, `Members`
+WHERE `Bookings`.`starttime` LIKE '2012-09-14%'
+	AND `Bookings`.`facid`=`Facilities`.`facid`
+
+
+
 
 /* Q9: This time, produce the same result as in Q8, but using a subquery. */
+
+
+
+
+
 
 
 /* Q10: Produce a list of facilities with a total revenue less than 1000.
 The output of facility name and total revenue, sorted by revenue. Remember
 that there's a different cost for guests and members! */
+
+
+
+
+
+
