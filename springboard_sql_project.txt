@@ -130,23 +130,52 @@ the guest user's ID is always 0. Include in your output the name of the
 facility, the name of the member formatted as a single column, and the cost.
 Order by descending cost, and do not use any subqueries. */
 
-SELECT `Bookings`.`starttime` AS Start_time,
-		CASE WHEN `Bookings`.`facid` = `Facilities`.`facid` THEN `Facilities`.`name`
-				ELSE NULL END AS Facility_name,
-        CASE WHEN `Bookings`.`memid` = `Members`.`memid` THEN `Members`.`firstname`
-				ELSE NULL END AS Guest_name
-FROM `Bookings`, `Facilities`, `Members`
-WHERE `Bookings`.`starttime` LIKE '2012-09-14%'
-	AND `Bookings`.`facid`=`Facilities`.`facid`
+
+SELECT CONCAT(mem.firstname, ' ', mem.surname) AS member_name,
+	fac.name as facility_name,
+	CASE WHEN (mem.memid = 0) THEN book.slots*fac.guestcost
+	ELSE book.slots*fac.membercost END as cost
+FROM country_club.Members AS mem
+JOIN country_club.Bookings as book
+	ON mem.memid = book.memid
+JOIN country_club.Facilities as fac
+	ON book.facid = fac.facid
+WHERE book.starttime >= '2012-09-14' AND
+	book.starttime < '2012-09-15' AND (
+	(mem.memid = 0 and book.slots*fac.guestcost > 30) OR
+    	(mem.memid != 0 and book.slots*fac.membercost > 30))
+ORDER BY cost DESC
 
 
 
 
 /* Q9: This time, produce the same result as in Q8, but using a subquery. */
 
+subquery
 
+select sub.name,
+sub.memid
+sub.cost_per_booking
 
+From (select Booking.memid
+Facilities
 
+from join) 
+Cost > 30
+
+SELECT CONCAT(mem.firstname, ' ', mem.surname) AS member_name
+FROM country_club.Members AS mem
+WHERE (SELECT CASE WHEN (mem.memid = 0) THEN book.slots*fac.guestcost
+	ELSE book.slots*fac.membercost END as cost
+	FROM country_club.Bookings as book
+	 JOIN country_club.Facilities as fac
+	ON book.facid = fac.facid
+	WHERE book.memid = mem.memid
+	AND (book.starttime >= '2012-09-14')
+	AND (book.starttime < '2012-09-15')
+	AND ((mem.memid = 0 and book.slots*fac.guestcost > 30) OR
+    	(mem.memid != 0 and book.slots*fac.membercost > 30))
+ORDER BY cost DESC)
 
 
 
