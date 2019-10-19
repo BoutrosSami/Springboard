@@ -151,17 +151,6 @@ ORDER BY cost DESC
 
 /* Q9: This time, produce the same result as in Q8, but using a subquery. */
 
-subquery
-
-select sub.name,
-sub.memid
-sub.cost_per_booking
-
-From (select Booking.memid
-Facilities
-
-from join) 
-Cost > 30
 
 SELECT CONCAT(mem.firstname, ' ', mem.surname) AS member_name
 FROM country_club.Members AS mem
